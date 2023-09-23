@@ -1,9 +1,12 @@
+//  TODO: do builder patter later;
 use std::sync::OnceLock;
 
 use super::error::{Error, Result};
 
 use reqwest::{Client, Url};
 use serde::{Deserialize, Serialize};
+use sqlb::Fields;
+use sqlx::FromRow;
 #[derive(Debug, Deserialize)]
 pub struct GooleQueryParams {
 	pub code: String,
@@ -36,8 +39,9 @@ struct GoogleResponseToken {
 	id_token: String,
 }
 
-#[derive(Deserialize, Debug, Serialize)]
+#[derive(Clone, Fields, FromRow, Debug, Serialize, Deserialize)]
 pub struct GoogleUser {
+	#[field(skip)]
 	pub id: String,
 	pub email: String,
 	pub verified_email: bool,

@@ -1,6 +1,6 @@
 mod error;
 mod store;
-mod user;
+pub mod user;
 pub use self::error::{Error, Result};
 use axum::extract::FromRef;
 use store::{new_db_pool, Db};

@@ -1,3 +1,6 @@
+// TODO: write integration test later;
+use crate::model::user;
+use crate::model::user::User;
 use crate::model::ModelManager;
 use crate::web::error::Result;
 use axum::extract::State;
@@ -21,15 +24,15 @@ async fn go_to_google(
 async fn google_cb(
 	State(mm): State<ModelManager>,
 	Query(code): Query<GooleQueryParams>,
-) -> Result<Json<GoogleUser>> {
+) -> Result<Json<User>> {
 	let code = code.code;
 	let google_user = mm
 		.google_oauth2_client
 		.get_user(code)
 		.await?;
-	// TODO: save user in db;
+	let user = user::UserRepo::upsert_from_google_user(&mm, google_user).await?;
 	// TODO: signe jwt;
-	// TODO: add jwt to header;
+	// TODO: add jwt to cookie;
 	// TODO: Redirect to ui;
-	Ok(Json(google_user))
+	Ok(Json(user))
 }
