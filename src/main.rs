@@ -1,4 +1,5 @@
 mod config;
+mod crypt;
 mod ctx;
 mod error;
 mod model;
@@ -6,7 +7,9 @@ mod web;
 
 use std::net::SocketAddr;
 
+use axum::Router;
 pub use error::{Error, Result};
+use tower_cookies::{CookieManager, CookieManagerLayer};
 use tracing::info;
 use web::routes;
 
@@ -26,8 +29,11 @@ async fn main() -> Result<()> {
 	let addr = SocketAddr::from(([127, 0, 0, 1], port));
 	info!("{:<12} - http://{addr}\n", "LISTENING");
 	let mm = model::ModelManager::new().await?;
+	let route = Router::new()
+		.merge(routes(mm))
+		.layer(CookieManagerLayer::new());
 	axum::Server::bind(&addr)
-		.serve(routes(mm).into_make_service())
+		.serve(route.into_make_service())
 		.await
 		.unwrap();
 

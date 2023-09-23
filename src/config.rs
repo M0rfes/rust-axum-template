@@ -20,6 +20,7 @@ pub struct Config {
 	pub GOOLE_REDIRECT: String,
 	pub PORT: u16,
 	pub DB_URL: String,
+	pub JWT_SECRET: String,
 }
 impl Config {
 	fn load_from_env() -> Result<Config> {
@@ -29,6 +30,7 @@ impl Config {
 			GOOLE_REDIRECT: get_env("GOOLE_REDIRECT")?,
 			PORT: get_env_parse("PORT")?,
 			DB_URL: get_env("DATABASE_URL")?,
+			JWT_SECRET: get_env("JWT_SECRET")?,
 		})
 	}
 }

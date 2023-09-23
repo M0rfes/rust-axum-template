@@ -3,7 +3,7 @@ use axum::response::{IntoResponse, Response};
 use serde::Serialize;
 use tracing::debug;
 
-use crate::model;
+use crate::{crypt, model};
 
 pub(in crate::web) type Result<T> = core::result::Result<T, Error>;
 
@@ -13,6 +13,7 @@ pub(in crate::web) enum Error {
 	SerdeJson(String),
 	Vendor(vendor::error::Error),
 	Model(model::Error),
+	Crypt(crypt::Error),
 }
 
 impl core::fmt::Display for Error {
@@ -21,6 +22,12 @@ impl core::fmt::Display for Error {
 		fmt: &mut core::fmt::Formatter,
 	) -> core::result::Result<(), core::fmt::Error> {
 		write!(fmt, "{self:?}")
+	}
+}
+
+impl From<crypt::Error> for Error {
+	fn from(val: crypt::Error) -> Self {
+		Self::Crypt(val)
 	}
 }
 
