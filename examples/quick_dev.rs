@@ -10,16 +10,10 @@ async fn main() -> Result<()> {
 		.print()
 		.await?;
 
-	hc.do_post(
-		"/health-check",
-		json!({
-			"username": "demo1",
-			"pwd": "welcome"
-		}),
-	)
-	.await?
-	.print()
-	.await?;
+	hc.do_post("/health-check", json!({}))
+		.await?
+		.print()
+		.await?;
 
 	Ok(())
 }

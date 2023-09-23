@@ -25,9 +25,9 @@ async fn main() -> Result<()> {
 
 	let addr = SocketAddr::from(([127, 0, 0, 1], port));
 	info!("{:<12} - http://{addr}\n", "LISTENING");
-
+	let mm = model::ModelManager::new().await?;
 	axum::Server::bind(&addr)
-		.serve(routes().into_make_service())
+		.serve(routes(mm).into_make_service())
 		.await
 		.unwrap();
 

@@ -3,12 +3,13 @@ use axum::response::{IntoResponse, Response};
 use serde::Serialize;
 use tracing::debug;
 
-pub type Result<T> = core::result::Result<T, Error>;
+pub(in crate::web) type Result<T> = core::result::Result<T, Error>;
 
 #[derive(Debug, Serialize, strum_macros::AsRefStr)]
 #[serde(tag = "type", content = "data")]
-enum Error {
+pub(in crate::web) enum Error {
 	SerdeJson(String),
+	Vendor(vendor::error::Error),
 }
 
 impl core::fmt::Display for Error {
@@ -23,6 +24,12 @@ impl core::fmt::Display for Error {
 impl From<serde_json::Error> for Error {
 	fn from(val: serde_json::Error) -> Self {
 		Self::SerdeJson(val.to_string())
+	}
+}
+
+impl From<vendor::error::Error> for Error {
+	fn from(value: vendor::error::Error) -> Self {
+		Self::Vendor(value)
 	}
 }
 

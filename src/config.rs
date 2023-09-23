@@ -15,12 +15,20 @@ pub fn config() -> &'static Config {
 
 #[allow(non_snake_case)]
 pub struct Config {
+	pub GOOGLE_CLIENT_ID: String,
+	pub GOOGLE_CLIENT_SECRET: String,
+	pub GOOLE_REDIRECT: String,
 	pub PORT: u16,
+	pub DB_URL: String,
 }
 impl Config {
 	fn load_from_env() -> Result<Config> {
 		Ok(Config {
+			GOOGLE_CLIENT_ID: get_env("GOOGLE_CLIENT_ID")?,
+			GOOGLE_CLIENT_SECRET: get_env("GOOGLE_CLIENT_SECRET")?,
+			GOOLE_REDIRECT: get_env("GOOLE_REDIRECT")?,
 			PORT: get_env_parse("PORT")?,
+			DB_URL: get_env("DATABASE_URL")?,
 		})
 	}
 }
