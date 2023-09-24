@@ -18,6 +18,11 @@ pub struct User {
 	pub locale: Option<String>,
 }
 
+#[derive(Clone, Fields, FromRow, Debug, Serialize)]
+pub struct UserForAuth {
+	pub id: i64,
+}
+
 pub trait UserBy:
 	HasFields + for<'r> FromRow<'r, PgRow> + Unpin + Send + std::fmt::Debug
 {
@@ -25,8 +30,15 @@ pub trait UserBy:
 
 impl UserBy for User {}
 impl UserBy for GoogleUser {}
+impl UserBy for UserForAuth {}
 
 pub struct UserRepo;
+
+impl Into<UserForAuth> for User {
+	fn into(self) -> UserForAuth {
+		UserForAuth { id: self.id }
+	}
+}
 
 impl UserRepo {
 	pub async fn upsert_from_google_user<E>(
@@ -57,5 +69,26 @@ impl UserRepo {
 				.await?;
 			Ok(user)
 		}
+	}
+
+	pub async fn find_by_id<E>(mm: &ModelManager, id: i64) -> Result<E>
+	where
+		E: UserBy,
+	{
+		let db = mm.db();
+		let id_copy = id.clone();
+		let user_in_db = sqlb::select()
+			.table("user")
+			.columns(E::field_names())
+			.and_where("id", "=", id)
+			.fetch_optional::<_, E>(db)
+			.await?
+			.ok_or(Error::EntityNotFound {
+				entity: "user".to_string(),
+				field: "id".to_string(),
+				value: format!("{}", id_copy),
+			})?;
+
+		Ok(user_in_db)
 	}
 }

@@ -7,7 +7,7 @@ mod web;
 
 use std::net::SocketAddr;
 
-use axum::Router;
+use axum::{middleware, Router};
 pub use error::{Error, Result};
 use tower_cookies::{CookieManager, CookieManagerLayer};
 use tracing::info;
@@ -15,6 +15,8 @@ use web::routes;
 
 use config::config;
 use tracing_subscriber::EnvFilter;
+
+use crate::web::mw_ctx_resolve;
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -30,7 +32,8 @@ async fn main() -> Result<()> {
 	info!("{:<12} - http://{addr}\n", "LISTENING");
 	let mm = model::ModelManager::new().await?;
 	let route = Router::new()
-		.merge(routes(mm))
+		.merge(routes(mm.clone()))
+		.layer(middleware::from_fn_with_state(mm.clone(), mw_ctx_resolve))
 		.layer(CookieManagerLayer::new());
 	axum::Server::bind(&addr)
 		.serve(route.into_make_service())

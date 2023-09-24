@@ -1,19 +1,20 @@
+use crate::web::middelware;
+use crate::{crypt, model};
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
 use serde::Serialize;
 use tracing::debug;
 
-use crate::{crypt, model};
-
-pub(in crate::web) type Result<T> = core::result::Result<T, Error>;
+pub type Result<T> = core::result::Result<T, Error>;
 
 #[derive(Debug, Serialize, strum_macros::AsRefStr)]
 #[serde(tag = "type", content = "data")]
-pub(in crate::web) enum Error {
+pub enum Error {
 	SerdeJson(String),
 	Vendor(vendor::error::Error),
 	Model(model::Error),
 	Crypt(crypt::Error),
+	CtxExt(middelware::auth::CtxExtError),
 }
 
 impl core::fmt::Display for Error {

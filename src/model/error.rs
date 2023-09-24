@@ -9,9 +9,9 @@ pub type Result<T> = core::result::Result<T, Error>;
 #[derive(Debug, Serialize)]
 pub enum Error {
 	EntityNotFound {
-		entity: &'static str,
-		field: &'static str,
-		value: &'static str,
+		entity: String,
+		field: String,
+		value: String,
 	},
 	Sqlx(#[serde_as(as = "DisplayFromStr")] sqlx::Error),
 
