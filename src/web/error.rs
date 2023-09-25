@@ -66,7 +66,49 @@ impl IntoResponse for Error {
 
 impl std::error::Error for Error {}
 
+impl Error {
+	pub fn client_status_and_error(&self) -> (StatusCode, ClientError) {
+		#[allow(unreachable_patterns)]
+		match self {
+			// -- Login
+
+			// -- Auth
+			Error::CtxExt(_) => (StatusCode::FORBIDDEN, ClientError::NO_AUTH),
+
+			// -- Model
+			Error::Model(model::Error::EntityNotFound {
+				field,
+				entity,
+				value,
+			}) => (
+				StatusCode::BAD_REQUEST,
+				ClientError::ENTITY_NOT_FOUND {
+					entity: entity.clone(),
+					field: field.clone(),
+					value: value.clone(),
+				},
+			),
+
+			// -- Fallback.
+			_ => (
+				StatusCode::INTERNAL_SERVER_ERROR,
+				ClientError::SERVICE_ERROR,
+			),
+		}
+	}
+}
+
 #[derive(Debug, Serialize, strum_macros::AsRefStr)]
 #[serde(tag = "message", content = "detail")]
 #[allow(non_camel_case_types)]
-pub enum ClientError {}
+pub enum ClientError {
+	LOGIN_FAIL,
+	NO_AUTH,
+	ENTITY_NOT_FOUND {
+		entity: String,
+		field: String,
+		value: String,
+	},
+
+	SERVICE_ERROR,
+}

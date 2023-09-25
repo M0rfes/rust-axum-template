@@ -2,12 +2,11 @@ use std::collections::BTreeMap;
 
 use axum::Router;
 
-mod error;
-//mod middelware;
+pub mod error;
 mod middelware;
 mod routes;
 
-pub use middelware::auth::mw_ctx_resolve;
+pub use middelware::{auth::mw_ctx_resolve, res_map::mw_reponse_map};
 use routes::health_check;
 use tower_cookies::{Cookie, Cookies};
 
